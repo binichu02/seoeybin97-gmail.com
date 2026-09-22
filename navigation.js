@@ -1,7 +1,8 @@
 export const STEP = .4;
-export const bounds = { minX: -8.65, maxX: 8.65, minZ: -5.65, maxZ: 6.65 };
+export const bounds = { minX: -8.65, maxX: 17.65, minZ: -5.65, maxZ: 6.65 };
 export function isWalkable(x,z,obstacles,radius=.32){
   if(x<bounds.minX||x>bounds.maxX||z<bounds.minZ||z>bounds.maxZ)return false;
+  if(x>8.65 && (z<.6 || (x<10.35 && (z<2.9 || z>4.1))))return false;
   return !obstacles.some(o=>Math.abs(x-o.x)<o.w/2+radius&&Math.abs(z-o.z)<o.d/2+radius);
 }
 export function findPath(start,target,obstacles){

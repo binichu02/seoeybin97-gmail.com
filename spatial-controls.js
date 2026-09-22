@@ -6,6 +6,7 @@ document.body.append(panel);const main=panel.querySelector('#context-main'),choi
 let nearest=null,pinned=null,expanded=null,dismissed=null,signature='',lastInventory='',width=146,height=60,lastX=-1,lastY=-1;
 let rect=root.getBoundingClientRect();const measure=()=>{rect=root.getBoundingClientRect();};new ResizeObserver(measure).observe(root);addEventListener('resize',measure);addEventListener('scroll',measure,{passive:true});new ResizeObserver(entries=>{width=entries[0].borderBoxSize?.[0]?.inlineSize||panel.offsetWidth;height=entries[0].borderBoxSize?.[0]?.blockSize||panel.offsetHeight;}).observe(panel);
 const catalog={
+run:{name:'러닝머신',action:'run',active:['run'],options:['run']},lift:{name:'덤벨',action:'lift',active:['lift'],options:['lift']},stretch:{name:'요가 매트',action:'stretch',active:['stretch'],options:['stretch']},
 fridgeOpen:{name:'냉장고',key:'fridge',on:'fridgeOpen',off:'fridgeClose',options:['takeVeg','takeButter','takeFish','takeEgg','takeMilk']},
 cook:{name:'가스레인지',dock:'soup',options:['cook','cookStirfry','cookSalad','cookFish','cookEgg']},
 prep:{name:'조리대',options:['prep','cookSalad','eat']},drink:{name:'주방 싱크대',options:['drink','dishes']},

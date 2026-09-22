@@ -1,3 +1,4 @@
+import { createGym } from './gym.js';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { findPath, isWalkable } from './navigation.js';
 import { createInteractions } from './interactions.js';
@@ -15,7 +16,13 @@ box(18,.08,13,.02,mat('#e3d6bc'),island,0,.17,.5);
 box(6,.04,6,.01,mat('#e9c7b3'),island,-6,.23,-3);
 box(6,.04,6,.01,mat('#e5d9b5'),island,0,.23,-3);
 box(6,.04,6,.01,mat('#c1d8d2'),island,6,.23,-3);
-box(6,.05,6.7,.02,mat('#b7c8a1'),island,6,.23,3.55);
+box(6,.05,6.7,.02,mat('#c8d4d4'),island,6,.23,3.55);
+box(8,.4,6.5,.15,mat('#c6c8b5'),island,14,-.08,3.55);
+box(8,.08,6.5,.04,mat('#b7c8a1'),island,14,.2,3.55);
+box(1.3,.12,1.5,.02,wood,island,9.55,.21,3.5);
+for(const z of [1.1,5.9])solid(.15,.8,2.2,wall,9.1,.65,z);
+for(let x=10.3;x<18;x+=.65)box(.08,.7,.08,.02,white,island,x,.63,6.65);
+for(const y of [.48,.83])box(7.8,.06,.07,.01,white,island,14,y,6.65);
 for(let x=-9;x<3;x+=.6)box(.018,.015,6.7,.003,mat('#c9b998'),island,x,.222,3.5);
 for(let x=3.1;x<9;x+=.6)for(let z=-5.9;z<0;z+=.6)box(.57,.012,.57,.006,mat((Math.round(x*10)+Math.round(z*10))%12?'#d2e1dc':'#e9eee3'),island,x,.26,z);
 solid(18.2,2.7,.18,wall,0,1.56,-6.1);
@@ -48,16 +55,20 @@ solid(3.3,.7,1.35,rose,-5.7,.61,5.5,.18);box(3.3,.95,.3,.13,rose,island,-5.7,1.0
 box(5.5,.035,5.9,.1,mat('#e8dfc9'),island,-5.5,.27,3.6);solid(1.8,.5,.85,wood,-5.7,.55,3.3,.17);box(.52,.06,.36,.01,sage,island,-5.6,.86,3.2);cyl(.11,.09,.15,white,island,-6.2,.92,3.3);
 solid(2.6,.7,.65,wood,-5.7,.59,1.6);box(2.5,1.4,.13,.05,dark,island,-5.7,1.6,1.58);
 const tvScreen=box(2.3,1.2,.035,.035,mat('#182d2b'),island,-5.7,1.6,1.68);
+const gardenStart=island.children.length,gardenObstacleStart=obstacles.length;
 for(let i=0;i<4;i++){plant(4+i*1.2,5.5,.8+(i%2)*.2);addObstacle(4+i*1.2,5.5,.6,.6);}
-plant(8,1.2,1.5);addObstacle(8,1.2,.8,.8);plant(-8,5.8,1.25);addObstacle(-8,5.8,.8,.8);
+plant(8,1.2,1.5);addObstacle(8,1.2,.8,.8);
 for(const z of [1.3,2.35,3.4,4.45])box(1,.04,.62,.12,mat('#e4e4d0'),island,4.1,.29,z);
 cyl(.9,.9,.09,wood,island,6.6,.93,2.8);solid(.18,.7,.18,wood,6.6,.58,2.8);for(const x of [5.2,8]){solid(.62,.54,.62,white,x,.5,2.8,.12);}
 addObstacle(6.6,2.8,1.8,1.8);
 const wateringCan=new THREE.Group();island.add(wateringCan);wateringCan.position.set(6.5,.29,5.1);cyl(.2,.23,.32,mat('#d6ab64'),wateringCan,0,.17);const spout=box(.08,.08,.47,.03,mat('#d6ab64'),wateringCan,0,.27,-.3);spout.rotation.x=.5;
+for(const o of island.children.slice(gardenStart))o.position.x+=9;
+for(const o of obstacles.slice(gardenObstacleStart))o.x+=9;
+plant(-8,5.8,1.25);addObstacle(-8,5.8,.8,.8);
 // Labels are scene objects so they remain attached while the camera rotates.
 function label(text,x,z){const c=document.createElement('canvas');c.width=512;c.height=96;const g=c.getContext('2d');g.font='500 33px sans-serif';g.fillStyle='#536557';g.textAlign='center';g.fillText(text,256,58);const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,depthTest:true,depthWrite:false,transparent:true}));sprite.position.set(x,.5,z);sprite.scale.set(3.3,.62,1);island.add(sprite);roomLabels.push(sprite);}
-label('01  BEDROOM',-6,-.6);label('02  KITCHEN',0,-.6);label('03  BATHROOM',6,-.6);label('04  LIVING ROOM',-4.5,6.6);label('05  GARDEN',6.1,6.6);
-const roomData={living:{name:'LIVING ROOM / 거실',title:'느긋하게, 나답게.',description:'소파에서 책을 읽거나 신나게 춤춰보세요.',x:-2,z:2,actions:['read','dance']},bedroom:{name:'BEDROOM / 침실',title:'충전이 필요한 순간.',description:'폭신한 침대에서 푹 쉬면 에너지가 차올라요.',x:-6.2,z:-1.4,actions:['sleep']},kitchen:{name:'KITCHEN / 주방',title:'오늘의 작은 요리사.',description:'따뜻한 한 끼를 만들고 맛있게 먹어요.',x:0,z:-2.7,actions:['cook']},bathroom:{name:'BATHROOM / 화장실',title:'뽀송뽀송, 새 기분.',description:'손을 씻거나 샤워하고 개운하게 시작해요.',x:5.5,z:-1.7,actions:['wash','shower','toilet']},garden:{name:'GARDEN / 정원',title:'초록빛 쉬는 시간.',description:'작은 식물들에게 물과 관심을 주세요.',x:5.5,z:4.2,actions:['water']}};
+label('01  BEDROOM',-6,-.6);label('02  KITCHEN',0,-.6);label('03  BATHROOM',6,-.6);label('04  LIVING ROOM',-4.5,6.6);label('GYM',6.1,6.6);label('GARDEN',14.5,6.1);
+const roomData={living:{name:'LIVING ROOM / 거실',title:'느긋하게, 나답게.',description:'소파에서 책을 읽거나 신나게 춤춰보세요.',x:-2,z:2,actions:['read','dance']},bedroom:{name:'BEDROOM / 침실',title:'충전이 필요한 순간.',description:'폭신한 침대에서 푹 쉬면 에너지가 차올라요.',x:-6.2,z:-1.4,actions:['sleep']},kitchen:{name:'KITCHEN / 주방',title:'오늘의 작은 요리사.',description:'따뜻한 한 끼를 만들고 맛있게 먹어요.',x:0,z:-2.7,actions:['cook']},bathroom:{name:'BATHROOM / 화장실',title:'뽀송뽀송, 새 기분.',description:'손을 씻거나 샤워하고 개운하게 시작해요.',x:5.5,z:-1.7,actions:['wash','shower','toilet']},gym:{name:'GYM / 운동실',title:'가볍게 몸을 움직여요.',description:'러닝머신, 덤벨, 요가 매트에서 운동해요.',x:4.1,z:3.5,actions:['run','lift','stretch']},garden:{name:'GARDEN / 정원',title:'초록빛 쉬는 시간.',description:'작은 식물들에게 물과 관심을 주세요.',x:14.5,z:4.2,actions:['water']}};
 const defs={
 sleep:{label:'잠자기',icon:'☾',x:-6,z:-2.02,duration:9,room:'bedroom',text:'포근하다… 잠깐 충전할게. Z z z',done:'푹 잤어! 다시 신나게 놀자.',need:'energy',gain:35},
 cook:{label:'요리하고 먹기',icon:'♨',x:-.2,z:-3.6,duration:8,room:'kitchen',text:'보글보글! 오늘은 따뜻한 수프야.',done:'잘 먹었습니다! 배가 든든해.',need:'food',gain:35},
@@ -65,10 +76,11 @@ wash:{label:'손 씻기',icon:'◌',x:4.55,z:-3.52,duration:5,room:'bathroom',te
 shower:{label:'샤워하기',icon:'☂',x:7.65,z:-1.55,duration:7,room:'bathroom',text:'따뜻한 물로 오늘의 먼지를 씻어내자.',done:'뽀송뽀송! 새 로봇이 된 것 같아.',need:'clean',gain:40},
 toilet:{label:'화장실 쓰기',icon:'◉',x:7.4,z:-3.52,duration:5,room:'bathroom',text:'잠깐만 기다려줘! 금방 다녀올게.',done:'개운해! 손도 씻고 가자.',need:'clean',gain:-8},
 read:{label:'책 읽기',icon:'▤',x:-5.7,z:4.2,duration:8,room:'living',text:'책 속에서는 어디든 갈 수 있어.',done:'새로운 이야기를 하나 배웠어!',need:'energy',gain:12},
-water:{label:'물 주기',icon:'♧',x:6.2,z:4.45,duration:6,room:'garden',text:'쑥쑥 자라렴! 내일 또 만나자.',done:'식물들도 기분이 좋아 보여 🌱',need:'energy',gain:8},
+water:{label:'물 주기',icon:'♧',x:15.2,z:4.45,duration:6,room:'garden',text:'쑥쑥 자라렴! 내일 또 만나자.',done:'식물들도 기분이 좋아 보여 🌱',need:'energy',gain:8},
 dance:{label:'춤추기',icon:'♫',x:-2,z:2,duration:5,room:'living',text:'우리 집 댄스 파티에 온 걸 환영해!',done:'함께 노니까 더 즐겁다!',need:'energy',gain:-5}};
 const interactions=createInteractions({...ctx,white,wood,sage,tvScreen,interactables,obstacles});
-Object.assign(defs,interactions.defs);Object.entries(interactions.roomActions).forEach(([room,actions])=>roomData[room].actions=actions);
+const gym=createGym({...ctx,obstacles,interactables});
+Object.assign(defs,interactions.defs,gym.defs);Object.entries(interactions.roomActions).forEach(([room,actions])=>roomData[room].actions=actions);
 const stationPoints=new Set();
 for(const [id,d] of Object.entries(defs)){const key=d.x+','+d.z;if(stationPoints.has(key)||!roomData[d.room].actions.includes(id))continue;stationPoints.add(key);const marker=cyl(.28,.28,.015,mat('#f3dca3'),island,d.x,.3,d.z);marker.userData.activity=id;interactables.push(marker);stations[id]=marker;}
 // Shared scene effects are enabled only during the matching activity.
@@ -77,17 +89,17 @@ const book=new THREE.Group();robot.add(book);book.position.set(0,1.15,.65);book.
 const bowl=new THREE.Group();robot.add(bowl);bowl.position.set(0,1.5,.8);cyl(.3,.18,.23,cream,bowl);cyl(.25,.25,.012,mat('#e2b26c'),bowl,0,.12,0);bowl.visible=false;
 const heldCan=new THREE.Group();robot.add(heldCan);heldCan.position.set(.3,1,.65);cyl(.24,.25,.4,mat('#d6ab64'),heldCan);box(.1,.1,.6,.04,mat('#d6ab64'),heldCan,0,.12,.38);heldCan.rotation.x=-.3;heldCan.visible=false;
 robot.scale.setScalar(.62);robot.position.set(-2,.28,2);
-const controls=new OrbitControls(camera,renderer.domElement);controls.enablePan=false;controls.minPolarAngle=.25;controls.maxPolarAngle=1.32;controls.minDistance=9;controls.maxDistance=100;controls.enableDamping=true;controls.dampingFactor=.08;controls.target.set(0,0,.4);controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE};
+const controls=new OrbitControls(camera,renderer.domElement);controls.enablePan=false;controls.minPolarAngle=.25;controls.maxPolarAngle=1.32;controls.minDistance=9;controls.maxDistance=100;controls.enableDamping=true;controls.dampingFactor=.08;controls.target.set(4,0,.4);controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE};
 let follow=false,overview=true,paused=matchMedia('(prefers-reduced-motion: reduce)').matches,selectedRoom='living',activeRoom='living',path=[],pending=null,activity=null,elapsed=0,t=0,waveUntil=0,lastUi=-1,uiKey='',sound=false,audio,colorIndex=0;
 let queued=[],routineTotal=0,inspecting=false;
 const keys=new Set(),clock=new THREE.Clock(),needs={energy:76,food:65,clean:82};
-function resize(){const w=root.clientWidth,h=root.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.clearViewOffset();camera.zoom=1;camera.updateProjectionMatrix();if(overview){camera.position.set(16,20,23).multiplyScalar(Math.max(1,1.3/camera.aspect));controls.target.set(0,0,.4);}controls.update();}resize();addEventListener('resize',resize);new ResizeObserver(resize).observe(root);
+function resize(){const w=root.clientWidth,h=root.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.clearViewOffset();camera.zoom=1;camera.updateProjectionMatrix();if(overview){camera.position.set(25,24,29).multiplyScalar(Math.max(1,1.3/camera.aspect));controls.target.set(4,0,.4);}controls.update();}resize();addEventListener('resize',resize);new ResizeObserver(resize).observe(root);
 function speak(text){bubble.textContent=text;}
 function chime(){if(!sound)return;audio??=new AudioContext();audio.resume();[523,659,784].forEach((f,i)=>{const o=audio.createOscillator(),g=audio.createGain(),at=audio.currentTime+i*.12;o.frequency.value=f;g.gain.setValueAtTime(.035,at);g.gain.exponentialRampToValueAtTime(.001,at+.35);o.connect(g);g.connect(audio.destination);o.start(at);o.stop(at+.4);});}
-function resetPose(){interactions.reset();if(activity&&activity.restore){robot.position.copy(activity.restore);}robot.rotation.x=0;robot.rotation.z=0;robot.position.y=.28;book.visible=false;bowl.visible=false;heldCan.visible=false;wateringCan.visible=true;particles.forEach(p=>p.visible=false);}
+function resetPose(){interactions.reset();gym.reset();if(activity&&activity.restore){robot.position.copy(activity.restore);}robot.rotation.x=0;robot.rotation.z=0;robot.position.y=.28;book.visible=false;bowl.visible=false;heldCan.visible=false;wateringCan.visible=true;particles.forEach(p=>p.visible=false);}
 function cancel(silent=false,clearQueue=true){if(clearQueue){queued=[];routineTotal=0;}const had=activity||pending||path.length;resetPose();activity=null;pending=null;path=[];elapsed=0;document.querySelector('#activity-progress').hidden=true;if(had&&!silent)speak('좋아, 다른 걸 해보자!');}
 function walkTo(x,z,then=null,chain=false){cancel(true,!chain);inspecting=false;path=findPath(robot.position,{x,z},obstacles);pending=then;if(!path.length){speak('그쪽으로는 갈 수 없어. 다른 바닥을 눌러줘.');pending=null;queued=[];return;}if(paused){paused=false;motionUI();}speak(then?`${defs[then].label} 하러 가는 중이야!`:'좋아, 같이 걸어가자.');}
-function begin(id){const d=defs[id];activity={id,restore:robot.position.clone()};elapsed=0;waveUntil=0;robot.rotation.y=['cook','wash','water'].includes(id)?Math.PI:0;if(id==='sleep'){robot.position.set(-6,1.12,-3.15);robot.rotation.x=-Math.PI/2;}if(id==='read')robot.position.set(-5.7,.73,5.4);if(id==='toilet')robot.position.set(7.4,.57,-4.48);book.visible=id==='read';interactions.begin(id);speak((routineTotal>1?`${routineTotal-queued.length}/${routineTotal} · `:'')+d.text);chime();document.querySelector('#activity-progress').hidden=false;document.querySelector('#activity-state').textContent=`${d.label} 중`;}
+function begin(id){const d=defs[id];activity={id,restore:robot.position.clone()};elapsed=0;waveUntil=0;robot.rotation.y=['cook','wash','water'].includes(id)?Math.PI:0;if(id==='sleep'){robot.position.set(-6,1.12,-3.15);robot.rotation.x=-Math.PI/2;}if(id==='read')robot.position.set(-5.7,.73,5.4);if(id==='toilet')robot.position.set(7.4,.57,-4.48);book.visible=id==='read';interactions.begin(id);gym.begin(id);speak((routineTotal>1?`${routineTotal-queued.length}/${routineTotal} · `:'')+d.text);chime();document.querySelector('#activity-progress').hidden=false;document.querySelector('#activity-state').textContent=`${d.label} 중`;}
 function runNext(){const next=queued.shift();if(next)walkTo(defs[next].x,defs[next].z,next,true);}
 function perform(id){if(id.startsWith('take')&&interactions.state.fridge&&Math.hypot(robot.position.x-defs[id].x,robot.position.z-defs[id].z)<1.5){cancel(true);if(paused){paused=false;motionUI();}begin(id);interactions.finish(id);activity.committed=true;speak(defs[id].done);return;}if(id.startsWith('take')&&(activity?.id.startsWith('take')||pending?.startsWith('take'))){queued.push(id);routineTotal++;speak(`${defs[id].label}도 이어서 꺼낼게.`);return;}const reason=interactions.can(id);if(reason){speak(reason);return;}cancel(true);queued=interactions.sequence(id);routineTotal=queued.length;runNext();setDrawer(false);}
 const drawer=document.querySelector('#action-drawer'),drawerToggle=document.querySelector('#toggle-actions');
@@ -96,7 +108,7 @@ drawerToggle.onclick=()=>setDrawer(drawer.hidden);
 function setPanel(room,choices=null){inspecting=!!choices;selectedRoom=room;const r=roomData[room];document.querySelector('#room-name').textContent=r.name;document.querySelector('#activity-title').textContent=r.title;document.querySelector('#activity-description').textContent=r.description;document.querySelector('#activities').replaceChildren(...(choices||r.actions).map(id=>{const b=document.createElement('button');b.textContent=defs[id].label;b.dataset.action=id;b.onclick=()=>perform(id);return b;}));document.querySelectorAll('[data-room]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.room===room));}
 setPanel('living');document.querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>{const r=roomData[b.dataset.room];walkTo(r.x,r.z);setPanel(b.dataset.room);speak(`${r.name.split(' / ')[1]}으로 가볼까?`);});
 document.querySelector('#cancel-action').onclick=()=>cancel();document.querySelector('#stop-routine').onclick=()=>cancel();
-function currentRoom(){const {x,z}=robot.position;return z<0?(x<-3?'bedroom':x>3?'bathroom':'kitchen'):x>3?'garden':'living';}
+function currentRoom(){const {x,z}=robot.position;return x>9?'garden':z<0?(x<-3?'bedroom':x>3?'bathroom':'kitchen'):x>3?'gym':'living';}
 const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let down=null;
 root.addEventListener('pointerdown',e=>{root.focus({preventScroll:true});down={x:e.clientX,y:e.clientY};});root.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clientX-down.x,e.clientY-down.y)>7)return;down=null;const r=root.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObjects(interactables,false)[0];if(hit){const data=hit.object.userData;if(data.choices){setDrawer(false);spatial.openForObject(hit.object);speak('가까이 가서 스페이스바를 누르거나 가구 옆 버튼을 눌러줘.');}else{perform(data.activity);setPanel(defs[data.activity].room);}return;}if(raycaster.intersectObject(robot,true).length){wave();return;}const p=new THREE.Vector3();if(raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),-.28),p)){if(isWalkable(p.x,p.z,obstacles))walkTo(p.x,p.z);else speak('가구가 있는 곳이야. 빈 바닥을 눌러줘!');}});
 function wave(){if(activity)cancel(true);waveUntil=t+3;speak('안녕! 우리 집 구경할래? 👋');chime();}
@@ -124,8 +136,8 @@ robot.rotation.z=dancing?Math.sin(t*8)*.14:0;if(dancing)robot.position.y=.28+Mat
 head.rotation.z=sleeping?0:Math.sin(t*1.5)*.025;head.rotation.y=id==='read'?0:Math.sin(t*.7)*.05;
 arms.forEach((a,i)=>{a.rotation.x=0;a.rotation.z=i?.1:-.1;if(moving)a.rotation.x=Math.sin(t*10+i*Math.PI)*.48;if(dancing)a.rotation.z=(i?1:-1)*(.7+Math.sin(t*8)*.4);if(['cook','wash','read','water'].includes(id)){a.rotation.x=-.95+(id==='read'?0:Math.sin(t*9+i)*.2);a.rotation.z=i?-.22:.22;}if(i===1&&t<waveUntil)a.rotation.z=2.3+Math.sin(t*10)*.3;});
 legs.forEach((l,i)=>l.rotation.x=['read','toilet'].includes(id)?-Math.PI/2:moving?Math.sin(t*10+i*Math.PI)*.5:0);eyes.forEach(e=>e.scale.y=sleeping?.07:(t%4.4>4.2?.08:1));
-particles.forEach((p,i)=>{p.visible=['soup','stirfry','fishCook','eggCook','wash','shower','water'].includes(id);if(!p.visible)return;const a=(t*1.3+i/18)%1;if(['soup','stirfry','fishCook','eggCook'].includes(id)){p.material.color.set('#f6f0de');p.position.set(-.2+Math.sin(i*5+t)*.14,1.7+a*.8,-4.75+Math.cos(i)*.14);p.scale.setScalar(.5+a*1.4);}else{p.material.color.set('#aadbe1');p.scale.setScalar(.6);if(id==='shower')p.position.set(7.9+Math.sin(i*12)*.45,2.3-a*1.8,-1.75+Math.cos(i*12)*.45);if(id==='wash')p.position.set(4.55+Math.sin(i)*.09,1.68-a*.4,-4.83);if(id==='water')p.position.set(6.2+Math.sin(i)*.18,.98-a*.65,4.8+a*.6);}});
-interactions.tick(id,elapsed,t,dt);
+particles.forEach((p,i)=>{p.visible=['soup','stirfry','fishCook','eggCook','wash','shower','water'].includes(id);if(!p.visible)return;const a=(t*1.3+i/18)%1;if(['soup','stirfry','fishCook','eggCook'].includes(id)){p.material.color.set('#f6f0de');p.position.set(-.2+Math.sin(i*5+t)*.14,1.7+a*.8,-4.75+Math.cos(i)*.14);p.scale.setScalar(.5+a*1.4);}else{p.material.color.set('#aadbe1');p.scale.setScalar(.6);if(id==='shower')p.position.set(7.9+Math.sin(i*12)*.45,2.3-a*1.8,-1.75+Math.cos(i*12)*.45);if(id==='wash')p.position.set(4.55+Math.sin(i)*.09,1.68-a*.4,-4.83);if(id==='water')p.position.set(15.2+Math.sin(i)*.18,.98-a*.65,4.8+a*.6);}});
+interactions.tick(id,elapsed,t,dt);gym.tick(id,t);
 if(activity){elapsed+=dt;const d=defs[id];document.querySelector('#task-progress').value=Math.min(1,elapsed/d.duration);if(elapsed>=d.duration){needs[d.need]=THREE.MathUtils.clamp(needs[d.need]+d.gain,0,100);if(!activity.committed)interactions.finish(id);cancel(true,false);if(queued.length)runNext();else{routineTotal=0;speak(d.done);}chime();}}
 if(moving){needs.energy=Math.max(0,needs.energy-dt*.07);needs.food=Math.max(0,needs.food-dt*.04);}
 const room=currentRoom();if(room!==activeRoom){activeRoom=room;if(!path.length&&!pending&&!inspecting)setPanel(room);}if(!path.length&&!activity&&!inspecting&&selectedRoom!==room)setPanel(room);
