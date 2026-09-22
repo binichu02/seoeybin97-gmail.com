@@ -1,0 +1,10 @@
+{
+  "name": "momo-home",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node serve.cjs",
+    "test": "node --test navigation.test.mjs interactions.test.mjs"
+  }
+}
